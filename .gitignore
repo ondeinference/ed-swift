@@ -1,0 +1,8 @@
+.DS_Store
+.build/
+.local/
+build/
+DerivedData/
+EdFramework.xcframework/
+Examples/EdExample/*.xcodeproj/
+*.xcresult
