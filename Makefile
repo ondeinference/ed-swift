@@ -79,14 +79,5 @@ visionos: build-bindgen prepare
 	  -library "$(APPLE_TARGET_DIR)/aarch64-apple-visionos-sim/release/libed_agent_ffi.a" -headers "$(HEADERS_DIR)" \
 	  -output "$(FRAMEWORK_DIR)"
 
-watchos: build-bindgen prepare
-	WATCHOS_DEPLOYMENT_TARGET=$(WATCHOS_DEPLOYMENT_TARGET) cargo +nightly rustc -Z build-std --target-dir "$(APPLE_TARGET_DIR)" --manifest-path "$(MANIFEST)" --target aarch64-apple-watchos --release --lib --crate-type staticlib
-	WATCHOS_DEPLOYMENT_TARGET=$(WATCHOS_DEPLOYMENT_TARGET) cargo +nightly rustc -Z build-std --target-dir "$(APPLE_TARGET_DIR)" --manifest-path "$(MANIFEST)" --target aarch64-apple-watchos-sim --release --lib --crate-type staticlib
-	$(MAKE) generate-swift BINDGEN_INPUT="$(APPLE_TARGET_DIR)/aarch64-apple-watchos/release/libed_agent_ffi.a"
-	xcodebuild -create-xcframework \
-	  -library "$(APPLE_TARGET_DIR)/aarch64-apple-watchos/release/libed_agent_ffi.a" -headers "$(HEADERS_DIR)" \
-	  -library "$(APPLE_TARGET_DIR)/aarch64-apple-watchos-sim/release/libed_agent_ffi.a" -headers "$(HEADERS_DIR)" \
-	  -output "$(FRAMEWORK_DIR)"
-
 clean:
 	rm -rf "$(FRAMEWORK_DIR)" "$(LOCAL_DIR)"

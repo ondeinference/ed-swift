@@ -33,7 +33,6 @@ let package = Package(
         .macOS(.v14),
         .tvOS(.v16),
         .visionOS(.v1),
-        .watchOS(.v9),
     ],
     products: [
         .library(name: "Ed", targets: ["Ed"]),
