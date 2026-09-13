@@ -352,7 +352,7 @@ private func uniffiTraitInterfaceCallWithError<T, E>(
         callStatus.pointee.errorBuf = FfiConverterString.lower(String(describing: error))
     }
 }
-// Initial value and increment amount for handles.
+// Initial value and increment amount for handles. 
 // These ensure that SWIFT handles always have the lowest bit set
 fileprivate let UNIFFI_HANDLEMAP_INITIAL: UInt64 = 1
 fileprivate let UNIFFI_HANDLEMAP_DELTA: UInt64 = 2
@@ -555,37 +555,37 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 
 public protocol FfiEdAgentProtocol: AnyObject, Sendable {
-
-    func cancel()
-
+    
+    func cancel() 
+    
     func clearHistory() async  -> UInt64
-
+    
     func history() async  -> [FfiChatMessage]
-
+    
     func info() async  -> FfiEngineInfo
-
+    
     func isLoaded() async  -> Bool
-
+    
     func loadAssignedModel(environment: FfiEnvironment, appId: String, appSecret: String, systemPrompt: String?, sampling: FfiSamplingConfig?) async throws  -> Double
-
+    
     func loadDefaultAgentModel(systemPrompt: String?) async throws  -> Double
-
+    
     func loadGgufModel(config: FfiGgufModelConfig, systemPrompt: String?, sampling: FfiSamplingConfig?) async throws  -> Double
-
+    
     func loadUqffModel(config: FfiUqffModelConfig, systemPrompt: String?, sampling: FfiSamplingConfig?) async throws  -> Double
-
-    func registerTool(tool: FfiToolDefinition) async throws
-
-    func removeAllTools() async
-
+    
+    func registerTool(tool: FfiToolDefinition) async throws 
+    
+    func removeAllTools() async 
+    
     func run(message: String) async throws  -> FfiAgentReply
-
+    
     func send(message: String) async throws  -> FfiReply
-
+    
     func unload() async  -> String?
-
+    
     func unregisterTool(name: String) async  -> Bool
-
+    
 }
 open class FfiEdAgent: FfiEdAgentProtocol, @unchecked Sendable {
     fileprivate let handle: UInt64
@@ -648,23 +648,23 @@ public convenience init(executor: FfiToolExecutor, approvals: FfiApprovalHandler
         try! rustCall { uniffi_ed_agent_ffi_fn_free_ffiedagent(handle, $0) }
     }
 
+    
 
-
-
+    
 open func cancel()  {try! rustCall() {
     uniffi_ed_agent_ffi_fn_method_ffiedagent_cancel(
             self.uniffiCloneHandle(),$0
     )
 }
 }
-
+    
 open func clearHistory()async  -> UInt64  {
     return
         try!  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_ed_agent_ffi_fn_method_ffiedagent_clear_history(
                     self.uniffiCloneHandle()
-
+                    
                 )
             },
             pollFunc: ffi_ed_agent_ffi_rust_future_poll_u64,
@@ -672,17 +672,17 @@ open func clearHistory()async  -> UInt64  {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_u64,
             liftFunc: FfiConverterUInt64.lift,
             errorHandler: nil
-
+            
         )
 }
-
+    
 open func history()async  -> [FfiChatMessage]  {
     return
         try!  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_ed_agent_ffi_fn_method_ffiedagent_history(
                     self.uniffiCloneHandle()
-
+                    
                 )
             },
             pollFunc: ffi_ed_agent_ffi_rust_future_poll_rust_buffer,
@@ -690,17 +690,17 @@ open func history()async  -> [FfiChatMessage]  {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_rust_buffer,
             liftFunc: FfiConverterSequenceTypeFfiChatMessage.lift,
             errorHandler: nil
-
+            
         )
 }
-
+    
 open func info()async  -> FfiEngineInfo  {
     return
         try!  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_ed_agent_ffi_fn_method_ffiedagent_info(
                     self.uniffiCloneHandle()
-
+                    
                 )
             },
             pollFunc: ffi_ed_agent_ffi_rust_future_poll_rust_buffer,
@@ -708,17 +708,17 @@ open func info()async  -> FfiEngineInfo  {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_rust_buffer,
             liftFunc: FfiConverterTypeFfiEngineInfo_lift,
             errorHandler: nil
-
+            
         )
 }
-
+    
 open func isLoaded()async  -> Bool  {
     return
         try!  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_ed_agent_ffi_fn_method_ffiedagent_is_loaded(
                     self.uniffiCloneHandle()
-
+                    
                 )
             },
             pollFunc: ffi_ed_agent_ffi_rust_future_poll_i8,
@@ -726,10 +726,10 @@ open func isLoaded()async  -> Bool  {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_i8,
             liftFunc: FfiConverterBool.lift,
             errorHandler: nil
-
+            
         )
 }
-
+    
 open func loadAssignedModel(environment: FfiEnvironment, appId: String, appSecret: String, systemPrompt: String?, sampling: FfiSamplingConfig?)async throws  -> Double  {
     return
         try  await uniffiRustCallAsync(
@@ -746,7 +746,7 @@ open func loadAssignedModel(environment: FfiEnvironment, appId: String, appSecre
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func loadDefaultAgentModel(systemPrompt: String?)async throws  -> Double  {
     return
         try  await uniffiRustCallAsync(
@@ -763,7 +763,7 @@ open func loadDefaultAgentModel(systemPrompt: String?)async throws  -> Double  {
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func loadGgufModel(config: FfiGgufModelConfig, systemPrompt: String?, sampling: FfiSamplingConfig?)async throws  -> Double  {
     return
         try  await uniffiRustCallAsync(
@@ -780,7 +780,7 @@ open func loadGgufModel(config: FfiGgufModelConfig, systemPrompt: String?, sampl
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func loadUqffModel(config: FfiUqffModelConfig, systemPrompt: String?, sampling: FfiSamplingConfig?)async throws  -> Double  {
     return
         try  await uniffiRustCallAsync(
@@ -797,7 +797,7 @@ open func loadUqffModel(config: FfiUqffModelConfig, systemPrompt: String?, sampl
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func registerTool(tool: FfiToolDefinition)async throws   {
     return
         try  await uniffiRustCallAsync(
@@ -814,14 +814,14 @@ open func registerTool(tool: FfiToolDefinition)async throws   {
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func removeAllTools()async   {
     return
         try!  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_ed_agent_ffi_fn_method_ffiedagent_remove_all_tools(
                     self.uniffiCloneHandle()
-
+                    
                 )
             },
             pollFunc: ffi_ed_agent_ffi_rust_future_poll_void,
@@ -829,10 +829,10 @@ open func removeAllTools()async   {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_void,
             liftFunc: { $0 },
             errorHandler: nil
-
+            
         )
 }
-
+    
 open func run(message: String)async throws  -> FfiAgentReply  {
     return
         try  await uniffiRustCallAsync(
@@ -849,7 +849,7 @@ open func run(message: String)async throws  -> FfiAgentReply  {
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func send(message: String)async throws  -> FfiReply  {
     return
         try  await uniffiRustCallAsync(
@@ -866,14 +866,14 @@ open func send(message: String)async throws  -> FfiReply  {
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
-
+    
 open func unload()async  -> String?  {
     return
         try!  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_ed_agent_ffi_fn_method_ffiedagent_unload(
                     self.uniffiCloneHandle()
-
+                    
                 )
             },
             pollFunc: ffi_ed_agent_ffi_rust_future_poll_rust_buffer,
@@ -881,10 +881,10 @@ open func unload()async  -> String?  {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_rust_buffer,
             liftFunc: FfiConverterOptionString.lift,
             errorHandler: nil
-
+            
         )
 }
-
+    
 open func unregisterTool(name: String)async  -> Bool  {
     return
         try!  await uniffiRustCallAsync(
@@ -899,12 +899,12 @@ open func unregisterTool(name: String)async  -> Bool  {
             freeFunc: ffi_ed_agent_ffi_rust_future_free_i8,
             liftFunc: FfiConverterBool.lift,
             errorHandler: nil
-
+            
         )
 }
+    
 
-
-
+    
 }
 
 
@@ -962,9 +962,9 @@ public struct FfiAgentConfig: Equatable, Hashable {
         self.maxToolOutputChars = maxToolOutputChars
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -978,7 +978,7 @@ public struct FfiConverterTypeFfiAgentConfig: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiAgentConfig {
         return
             try FfiAgentConfig(
-                maxToolRounds: FfiConverterUInt8.read(from: &buf),
+                maxToolRounds: FfiConverterUInt8.read(from: &buf), 
                 maxToolOutputChars: FfiConverterUInt64.read(from: &buf)
         )
     }
@@ -1020,9 +1020,9 @@ public struct FfiAgentReply: Equatable, Hashable {
         self.toolRounds = toolRounds
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1036,9 +1036,9 @@ public struct FfiConverterTypeFfiAgentReply: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiAgentReply {
         return
             try FfiAgentReply(
-                text: FfiConverterString.read(from: &buf),
-                durationSeconds: FfiConverterDouble.read(from: &buf),
-                duration: FfiConverterString.read(from: &buf),
+                text: FfiConverterString.read(from: &buf), 
+                durationSeconds: FfiConverterDouble.read(from: &buf), 
+                duration: FfiConverterString.read(from: &buf), 
                 toolRounds: FfiConverterUInt8.read(from: &buf)
         )
     }
@@ -1067,6 +1067,67 @@ public func FfiConverterTypeFfiAgentReply_lower(_ value: FfiAgentReply) -> RustB
 }
 
 
+/**
+ * A tool call waiting on the user, with the risk that made it wait.
+ *
+ * The risk travels with the call because it is the reason an approval sheet
+ * is on screen at all: a host that only received the call would have to look
+ * the tool up again to tell the user whether it is about to change anything.
+ */
+public struct FfiApprovalRequest: Equatable, Hashable {
+    public var call: FfiToolCall
+    public var risk: FfiToolRisk
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(call: FfiToolCall, risk: FfiToolRisk) {
+        self.call = call
+        self.risk = risk
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension FfiApprovalRequest: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeFfiApprovalRequest: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiApprovalRequest {
+        return
+            try FfiApprovalRequest(
+                call: FfiConverterTypeFfiToolCall.read(from: &buf), 
+                risk: FfiConverterTypeFfiToolRisk.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: FfiApprovalRequest, into buf: inout [UInt8]) {
+        FfiConverterTypeFfiToolCall.write(value.call, into: &buf)
+        FfiConverterTypeFfiToolRisk.write(value.risk, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeFfiApprovalRequest_lift(_ buf: RustBuffer) throws -> FfiApprovalRequest {
+    return try FfiConverterTypeFfiApprovalRequest.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeFfiApprovalRequest_lower(_ value: FfiApprovalRequest) -> RustBuffer {
+    return FfiConverterTypeFfiApprovalRequest.lower(value)
+}
+
+
 public struct FfiChatMessage: Equatable, Hashable {
     public var role: FfiChatRole
     public var content: String
@@ -1078,9 +1139,9 @@ public struct FfiChatMessage: Equatable, Hashable {
         self.content = content
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1094,7 +1155,7 @@ public struct FfiConverterTypeFfiChatMessage: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiChatMessage {
         return
             try FfiChatMessage(
-                role: FfiConverterTypeFfiChatRole.read(from: &buf),
+                role: FfiConverterTypeFfiChatRole.read(from: &buf), 
                 content: FfiConverterString.read(from: &buf)
         )
     }
@@ -1136,9 +1197,9 @@ public struct FfiEngineInfo: Equatable, Hashable {
         self.historyLength = historyLength
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1152,9 +1213,9 @@ public struct FfiConverterTypeFfiEngineInfo: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiEngineInfo {
         return
             try FfiEngineInfo(
-                status: FfiConverterTypeFfiEngineStatus.read(from: &buf),
-                modelName: FfiConverterOptionString.read(from: &buf),
-                approxMemory: FfiConverterOptionString.read(from: &buf),
+                status: FfiConverterTypeFfiEngineStatus.read(from: &buf), 
+                modelName: FfiConverterOptionString.read(from: &buf), 
+                approxMemory: FfiConverterOptionString.read(from: &buf), 
                 historyLength: FfiConverterUInt64.read(from: &buf)
         )
     }
@@ -1202,9 +1263,9 @@ public struct FfiGgufModelConfig: Equatable, Hashable {
         self.chatTemplate = chatTemplate
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1218,11 +1279,11 @@ public struct FfiConverterTypeFfiGgufModelConfig: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiGgufModelConfig {
         return
             try FfiGgufModelConfig(
-                modelId: FfiConverterString.read(from: &buf),
-                files: FfiConverterSequenceString.read(from: &buf),
-                tokModelId: FfiConverterOptionString.read(from: &buf),
-                displayName: FfiConverterString.read(from: &buf),
-                approxMemory: FfiConverterString.read(from: &buf),
+                modelId: FfiConverterString.read(from: &buf), 
+                files: FfiConverterSequenceString.read(from: &buf), 
+                tokModelId: FfiConverterOptionString.read(from: &buf), 
+                displayName: FfiConverterString.read(from: &buf), 
+                approxMemory: FfiConverterString.read(from: &buf), 
                 chatTemplate: FfiConverterOptionString.read(from: &buf)
         )
     }
@@ -1264,9 +1325,9 @@ public struct FfiReply: Equatable, Hashable {
         self.duration = duration
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1280,7 +1341,7 @@ public struct FfiConverterTypeFfiReply: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiReply {
         return
             try FfiReply(
-                text: FfiConverterString.read(from: &buf),
+                text: FfiConverterString.read(from: &buf), 
                 duration: FfiConverterString.read(from: &buf)
         )
     }
@@ -1328,9 +1389,9 @@ public struct FfiSamplingConfig: Equatable, Hashable {
         self.presencePenalty = presencePenalty
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1344,12 +1405,12 @@ public struct FfiConverterTypeFfiSamplingConfig: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiSamplingConfig {
         return
             try FfiSamplingConfig(
-                temperature: FfiConverterOptionDouble.read(from: &buf),
-                topP: FfiConverterOptionDouble.read(from: &buf),
-                topK: FfiConverterOptionUInt64.read(from: &buf),
-                minP: FfiConverterOptionDouble.read(from: &buf),
-                maxTokens: FfiConverterOptionUInt64.read(from: &buf),
-                frequencyPenalty: FfiConverterOptionFloat.read(from: &buf),
+                temperature: FfiConverterOptionDouble.read(from: &buf), 
+                topP: FfiConverterOptionDouble.read(from: &buf), 
+                topK: FfiConverterOptionUInt64.read(from: &buf), 
+                minP: FfiConverterOptionDouble.read(from: &buf), 
+                maxTokens: FfiConverterOptionUInt64.read(from: &buf), 
+                frequencyPenalty: FfiConverterOptionFloat.read(from: &buf), 
                 presencePenalty: FfiConverterOptionFloat.read(from: &buf)
         )
     }
@@ -1394,9 +1455,9 @@ public struct FfiStatusUpdate: Equatable, Hashable {
         self.error = error
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1410,8 +1471,8 @@ public struct FfiConverterTypeFfiStatusUpdate: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiStatusUpdate {
         return
             try FfiStatusUpdate(
-                status: FfiConverterTypeFfiEngineStatus.read(from: &buf),
-                modelName: FfiConverterOptionString.read(from: &buf),
+                status: FfiConverterTypeFfiEngineStatus.read(from: &buf), 
+                modelName: FfiConverterOptionString.read(from: &buf), 
                 error: FfiConverterOptionString.read(from: &buf)
         )
     }
@@ -1452,9 +1513,9 @@ public struct FfiToolCall: Equatable, Hashable {
         self.arguments = arguments
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1468,8 +1529,8 @@ public struct FfiConverterTypeFfiToolCall: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiToolCall {
         return
             try FfiToolCall(
-                id: FfiConverterString.read(from: &buf),
-                name: FfiConverterString.read(from: &buf),
+                id: FfiConverterString.read(from: &buf), 
+                name: FfiConverterString.read(from: &buf), 
                 arguments: FfiConverterString.read(from: &buf)
         )
     }
@@ -1512,9 +1573,9 @@ public struct FfiToolDefinition: Equatable, Hashable {
         self.risk = risk
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1528,9 +1589,9 @@ public struct FfiConverterTypeFfiToolDefinition: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiToolDefinition {
         return
             try FfiToolDefinition(
-                name: FfiConverterString.read(from: &buf),
-                description: FfiConverterString.read(from: &buf),
-                parametersSchema: FfiConverterString.read(from: &buf),
+                name: FfiConverterString.read(from: &buf), 
+                description: FfiConverterString.read(from: &buf), 
+                parametersSchema: FfiConverterString.read(from: &buf), 
                 risk: FfiConverterTypeFfiToolRisk.read(from: &buf)
         )
     }
@@ -1570,9 +1631,9 @@ public struct FfiToolOutput: Equatable, Hashable {
         self.error = error
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1586,7 +1647,7 @@ public struct FfiConverterTypeFfiToolOutput: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiToolOutput {
         return
             try FfiToolOutput(
-                content: FfiConverterString.read(from: &buf),
+                content: FfiConverterString.read(from: &buf), 
                 error: FfiConverterOptionString.read(from: &buf)
         )
     }
@@ -1630,9 +1691,9 @@ public struct FfiUqffModelConfig: Equatable, Hashable {
         self.chatTemplate = chatTemplate
     }
 
+    
 
-
-
+    
 }
 
 #if compiler(>=6)
@@ -1646,10 +1707,10 @@ public struct FfiConverterTypeFfiUqffModelConfig: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiUqffModelConfig {
         return
             try FfiUqffModelConfig(
-                modelId: FfiConverterString.read(from: &buf),
-                files: FfiConverterSequenceString.read(from: &buf),
-                displayName: FfiConverterString.read(from: &buf),
-                approxMemory: FfiConverterString.read(from: &buf),
+                modelId: FfiConverterString.read(from: &buf), 
+                files: FfiConverterSequenceString.read(from: &buf), 
+                displayName: FfiConverterString.read(from: &buf), 
+                approxMemory: FfiConverterString.read(from: &buf), 
                 chatTemplate: FfiConverterOptionString.read(from: &buf)
         )
     }
@@ -1682,7 +1743,7 @@ public func FfiConverterTypeFfiUqffModelConfig_lower(_ value: FfiUqffModelConfig
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
 public enum FfiApprovalDecision: Equatable, Hashable {
-
+    
     case allowOnce
     case allowForSession
     case deny
@@ -1706,32 +1767,32 @@ public struct FfiConverterTypeFfiApprovalDecision: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiApprovalDecision {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-
+        
         case 1: return .allowOnce
-
+        
         case 2: return .allowForSession
-
+        
         case 3: return .deny
-
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: FfiApprovalDecision, into buf: inout [UInt8]) {
         switch value {
-
-
+        
+        
         case .allowOnce:
             writeInt(&buf, Int32(1))
-
-
+        
+        
         case .allowForSession:
             writeInt(&buf, Int32(2))
-
-
+        
+        
         case .deny:
             writeInt(&buf, Int32(3))
-
+        
         }
     }
 }
@@ -1756,7 +1817,7 @@ public func FfiConverterTypeFfiApprovalDecision_lower(_ value: FfiApprovalDecisi
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
 public enum FfiChatRole: Equatable, Hashable {
-
+    
     case system
     case user
     case assistant
@@ -1780,32 +1841,32 @@ public struct FfiConverterTypeFfiChatRole: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiChatRole {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-
+        
         case 1: return .system
-
+        
         case 2: return .user
-
+        
         case 3: return .assistant
-
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: FfiChatRole, into buf: inout [UInt8]) {
         switch value {
-
-
+        
+        
         case .system:
             writeInt(&buf, Int32(1))
-
-
+        
+        
         case .user:
             writeInt(&buf, Int32(2))
-
-
+        
+        
         case .assistant:
             writeInt(&buf, Int32(3))
-
+        
         }
     }
 }
@@ -1829,20 +1890,20 @@ public func FfiConverterTypeFfiChatRole_lower(_ value: FfiChatRole) -> RustBuffe
 
 public enum FfiEdError: Swift.Error, Equatable, Hashable, Foundation.LocalizedError {
 
-
-
+    
+    
     case Failure(reason: String
     )
 
+    
 
+    
 
-
-
-
+    
     public var errorDescription: String? {
         String(reflecting: self)
     }
-
+    
 }
 
 #if compiler(>=6)
@@ -1859,9 +1920,9 @@ public struct FfiConverterTypeFfiEdError: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
 
+        
 
-
-
+        
         case 1: return .Failure(
             reason: try FfiConverterString.read(from: &buf)
             )
@@ -1873,14 +1934,14 @@ public struct FfiConverterTypeFfiEdError: FfiConverterRustBuffer {
     public static func write(_ value: FfiEdError, into buf: inout [UInt8]) {
         switch value {
 
+        
 
-
-
-
+        
+        
         case let .Failure(reason):
             writeInt(&buf, Int32(1))
             FfiConverterString.write(reason, into: &buf)
-
+            
         }
     }
 }
@@ -1904,7 +1965,7 @@ public func FfiConverterTypeFfiEdError_lower(_ value: FfiEdError) -> RustBuffer 
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
 public enum FfiEngineStatus: Equatable, Hashable {
-
+    
     case unloaded
     case loading
     case ready
@@ -1930,44 +1991,44 @@ public struct FfiConverterTypeFfiEngineStatus: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiEngineStatus {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-
+        
         case 1: return .unloaded
-
+        
         case 2: return .loading
-
+        
         case 3: return .ready
-
+        
         case 4: return .generating
-
+        
         case 5: return .error
-
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: FfiEngineStatus, into buf: inout [UInt8]) {
         switch value {
-
-
+        
+        
         case .unloaded:
             writeInt(&buf, Int32(1))
-
-
+        
+        
         case .loading:
             writeInt(&buf, Int32(2))
-
-
+        
+        
         case .ready:
             writeInt(&buf, Int32(3))
-
-
+        
+        
         case .generating:
             writeInt(&buf, Int32(4))
-
-
+        
+        
         case .error:
             writeInt(&buf, Int32(5))
-
+        
         }
     }
 }
@@ -1992,7 +2053,7 @@ public func FfiConverterTypeFfiEngineStatus_lower(_ value: FfiEngineStatus) -> R
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
 public enum FfiEnvironment: Equatable, Hashable {
-
+    
     case development
     case production
 
@@ -2015,26 +2076,26 @@ public struct FfiConverterTypeFfiEnvironment: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiEnvironment {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-
+        
         case 1: return .development
-
+        
         case 2: return .production
-
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: FfiEnvironment, into buf: inout [UInt8]) {
         switch value {
-
-
+        
+        
         case .development:
             writeInt(&buf, Int32(1))
-
-
+        
+        
         case .production:
             writeInt(&buf, Int32(2))
-
+        
         }
     }
 }
@@ -2059,7 +2120,7 @@ public func FfiConverterTypeFfiEnvironment_lower(_ value: FfiEnvironment) -> Rus
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
 public enum FfiToolRisk: Equatable, Hashable {
-
+    
     case readOnly
     case mutating
 
@@ -2082,26 +2143,26 @@ public struct FfiConverterTypeFfiToolRisk: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FfiToolRisk {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-
+        
         case 1: return .readOnly
-
+        
         case 2: return .mutating
-
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: FfiToolRisk, into buf: inout [UInt8]) {
         switch value {
-
-
+        
+        
         case .readOnly:
             writeInt(&buf, Int32(1))
-
-
+        
+        
         case .mutating:
             writeInt(&buf, Int32(2))
-
+        
         }
     }
 }
@@ -2126,9 +2187,9 @@ public func FfiConverterTypeFfiToolRisk_lower(_ value: FfiToolRisk) -> RustBuffe
 
 
 public protocol FfiApprovalHandler: AnyObject, Sendable {
-
-    func approve(call: FfiToolCall) async  -> FfiApprovalDecision
-
+    
+    func approve(request: FfiApprovalRequest) async  -> FfiApprovalDecision
+    
 }
 
 
@@ -2157,7 +2218,7 @@ fileprivate struct UniffiCallbackInterfaceFfiApprovalHandler {
         },
         approve: { (
             uniffiHandle: UInt64,
-            call: RustBuffer,
+            request: RustBuffer,
             uniffiFutureCallback: @escaping UniffiForeignFutureCompleteRustBuffer,
             uniffiCallbackData: UInt64,
             uniffiOutDroppedCallback: UnsafeMutablePointer<UniffiForeignFutureDroppedCallbackStruct>
@@ -2168,7 +2229,7 @@ fileprivate struct UniffiCallbackInterfaceFfiApprovalHandler {
                     throw UniffiInternalError.unexpectedStaleHandle
                 }
                 return await uniffiObj.approve(
-                     call: try FfiConverterTypeFfiToolCall_lift(call)
+                     request: try FfiConverterTypeFfiApprovalRequest_lift(request)
                 )
             }
 
@@ -2268,21 +2329,21 @@ public func FfiConverterCallbackInterfaceFfiApprovalHandler_lower(_ v: FfiApprov
 
 
 public protocol FfiEventListener: AnyObject, Sendable {
-
-    func statusChanged(update: FfiStatusUpdate)
-
-    func toolRequested(call: FfiToolCall)
-
-    func approvalRequested(call: FfiToolCall)
-
-    func toolStarted(call: FfiToolCall)
-
-    func toolFinished(toolCallId: String, content: String, isError: Bool)
-
-    func agentReplied(reply: FfiAgentReply)
-
-    func warning(message: String)
-
+    
+    func statusChanged(update: FfiStatusUpdate) 
+    
+    func toolRequested(call: FfiToolCall) 
+    
+    func approvalRequested(request: FfiApprovalRequest) 
+    
+    func toolStarted(call: FfiToolCall) 
+    
+    func toolFinished(toolCallId: String, content: String, isError: Bool) 
+    
+    func agentReplied(reply: FfiAgentReply) 
+    
+    func warning(message: String) 
+    
 }
 
 
@@ -2325,7 +2386,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2349,7 +2410,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2359,7 +2420,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
         },
         approvalRequested: { (
             uniffiHandle: UInt64,
-            call: RustBuffer,
+            request: RustBuffer,
             uniffiOutReturn: UnsafeMutableRawPointer,
             uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
         ) in
@@ -2369,11 +2430,11 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                     throw UniffiInternalError.unexpectedStaleHandle
                 }
                 return uniffiObj.approvalRequested(
-                     call: try FfiConverterTypeFfiToolCall_lift(call)
+                     request: try FfiConverterTypeFfiApprovalRequest_lift(request)
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2397,7 +2458,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2425,7 +2486,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2449,7 +2510,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2473,7 +2534,7 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 )
             }
 
-
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -2552,9 +2613,9 @@ public func FfiConverterCallbackInterfaceFfiEventListener_lower(_ v: FfiEventLis
 
 
 public protocol FfiToolExecutor: AnyObject, Sendable {
-
+    
     func execute(toolName: String, arguments: String) async  -> FfiToolOutput
-
+    
 }
 
 
@@ -3105,7 +3166,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_ed_agent_ffi_checksum_constructor_ffiedagent_new() != 19584) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffiapprovalhandler_approve() != 12591) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffiapprovalhandler_approve() != 9982) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_status_changed() != 50680) {
@@ -3114,7 +3175,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_requested() != 58928) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_approval_requested() != 54477) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_approval_requested() != 13081) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_started() != 23754) {
