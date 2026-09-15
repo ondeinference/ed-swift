@@ -25,7 +25,7 @@ registers.
 In Xcode, choose **File > Add Package Dependencies** and enter:
 
 ```text
-https://github.com/ondeinference/onde-ed-swift
+https://github.com/ondeinference/ed-swift
 ```
 
 Then add the `Ed` product to your target and import it:
@@ -99,7 +99,7 @@ with a read-only device tool and an approval-gated mutating tool.
 
 ## Local development
 
-Keep `onde`, `onde-ed`, and `onde-ed-swift` next to one another, then build a
+Keep `onde`, `ed`, and `ed-swift` next to one another, then build a
 local framework before running Swift tests:
 
 ```sh
