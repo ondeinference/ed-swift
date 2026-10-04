@@ -417,8 +417,8 @@ private final class ApprovalAdapter: FfiApprovalHandler, @unchecked Sendable {
         self.handler = handler
     }
 
-    func approve(call: FfiToolCall) async -> FfiApprovalDecision {
-        await handler(call.swift).ffi
+    func approve(request: FfiApprovalRequest) async -> FfiApprovalDecision {
+        await handler(request.call.swift).ffi
     }
 }
 
@@ -445,7 +445,7 @@ private final class EventHub: FfiEventListener, @unchecked Sendable {
     }
 
     func toolRequested(call: FfiToolCall) { emit(.toolRequested(call.swift)) }
-    func approvalRequested(call: FfiToolCall) { emit(.approvalRequested(call.swift)) }
+    func approvalRequested(request: FfiApprovalRequest) { emit(.approvalRequested(request.call.swift)) }
     func toolStarted(call: FfiToolCall) { emit(.toolStarted(call.swift)) }
 
     func toolFinished(toolCallId: String, content: String, isError: Bool) {
