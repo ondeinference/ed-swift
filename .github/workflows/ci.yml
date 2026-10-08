@@ -33,6 +33,14 @@ jobs:
       - uses: actions/checkout@v6
       - run: swift build
 
+  test-macos:
+    name: Test (macOS)
+    needs: validate
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+      - run: swift test
+
   build-ios:
     name: Build (iOS)
     needs: validate
