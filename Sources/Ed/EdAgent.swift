@@ -78,6 +78,11 @@ public enum EdApprovalDecision: Sendable {
 
 public typealias EdApprovalHandler = @Sendable (EdToolCall) async -> EdApprovalDecision
 
+/// Like ``EdApprovalHandler``, and also told the tool's risk, so the approval
+/// sheet can say whether the call changes anything.
+public typealias EdRiskApprovalHandler =
+    @Sendable (EdToolCall, EdToolRisk) async -> EdApprovalDecision
+
 public struct EdAgentConfiguration: Sendable {
     public var maxToolRounds: UInt8
     public var maxToolOutputCharacters: UInt64
@@ -100,7 +105,7 @@ public struct EdReply: Sendable, Equatable {
     public let duration: String
 }
 
-public enum EdEngineStatus: Sendable {
+public enum EdEngineStatus: Sendable, Equatable {
     case unloaded
     case loading
     case ready
@@ -108,26 +113,46 @@ public enum EdEngineStatus: Sendable {
     case error
 }
 
-public struct EdEngineInfo: Sendable {
+public struct EdEngineInfo: Sendable, Equatable {
     public let status: EdEngineStatus
     public let modelName: String?
     public let approximateMemory: String?
     public let historyLength: UInt64
+
+    public init(
+        status: EdEngineStatus,
+        modelName: String? = nil,
+        approximateMemory: String? = nil,
+        historyLength: UInt64 = 0
+    ) {
+        self.status = status
+        self.modelName = modelName
+        self.approximateMemory = approximateMemory
+        self.historyLength = historyLength
+    }
 }
 
-public enum EdChatRole: Sendable {
+public enum EdChatRole: Sendable, Equatable {
     case system
     case user
     case assistant
 }
 
-public struct EdChatMessage: Sendable {
+public struct EdChatMessage: Sendable, Equatable {
     public let role: EdChatRole
     public let content: String
+
+    public init(role: EdChatRole, content: String) {
+        self.role = role
+        self.content = content
+    }
 }
 
 public enum EdEvent: Sendable {
     case statusChanged(status: EdEngineStatus, modelName: String?, error: String?)
+
+    /// A piece of the reply as it is generated during ``EdAgent/run(_:)``.
+    case textDelta(String)
     case toolRequested(EdToolCall)
     case approvalRequested(EdToolCall)
     case toolStarted(EdToolCall)
@@ -226,9 +251,12 @@ public actor EdAgent {
     private let approvals: ApprovalAdapter
     private nonisolated let eventHub: EventHub
 
+    /// - Parameter appID: Your Onde app id, so the engine reports usage under
+    ///   it. Pass `nil` for none.
     public init(
+        appID: String?,
         configuration: EdAgentConfiguration = .init(),
-        approvalHandler: @escaping EdApprovalHandler = { _ in .deny }
+        approvalHandler: @escaping EdRiskApprovalHandler = { _, _ in .deny }
     ) {
         let tools = ToolDispatcher()
         let approvals = ApprovalAdapter(handler: approvalHandler)
@@ -237,14 +265,26 @@ public actor EdAgent {
         self.tools = tools
         self.approvals = approvals
         self.eventHub = eventHub
-        self.core = FfiEdAgent(
+        self.core = FfiEdAgent.newWithAppId(
             executor: tools,
             approvals: approvals,
             events: eventHub,
             config: FfiAgentConfig(
                 maxToolRounds: configuration.maxToolRounds,
                 maxToolOutputChars: configuration.maxToolOutputCharacters
-            )
+            ),
+            appId: appID
+        )
+    }
+
+    public init(
+        configuration: EdAgentConfiguration = .init(),
+        approvalHandler: @escaping EdApprovalHandler = { _ in .deny }
+    ) {
+        self.init(
+            appID: nil,
+            configuration: configuration,
+            approvalHandler: { call, _ in await approvalHandler(call) }
         )
     }
 
@@ -285,6 +325,59 @@ public actor EdAgent {
     public func send(_ message: String) async throws -> EdReply {
         let reply = try await core.send(message: message)
         return EdReply(text: reply.text, duration: reply.duration)
+    }
+
+    /// Streams the reply to one ordinary chat turn, without exposing tools.
+    ///
+    /// Yields text deltas as they are generated. Cancelling the consuming task
+    /// (or breaking out of the loop) stops generation; what was produced stays
+    /// in the history.
+    public nonisolated func stream(_ message: String) -> AsyncThrowingStream<String, Error> {
+        let core = self.core
+        return AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    try await core.streamMessage(
+                        message: message,
+                        listener: StreamAdapter(continuation: continuation)
+                    )
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in
+                core.cancelStream()
+                task.cancel()
+            }
+        }
+    }
+
+    /// One-shot generation over `messages`. The conversation is left alone.
+    public func generate(
+        messages: [EdChatMessage],
+        sampling: EdSamplingConfiguration? = nil
+    ) async throws -> String {
+        try await core.generate(messages: messages.map(\.ffi), sampling: sampling?.ffi)
+    }
+
+    /// Replaces the conversation with `messages`, for switching to a saved chat.
+    /// Needs a loaded model. Also revokes any "allow for session" approvals.
+    public func restoreHistory(_ messages: [EdChatMessage]) async {
+        await core.restoreHistory(messages: messages.map(\.ffi))
+    }
+
+    /// Sets the system prompt for later turns. Needs a loaded model.
+    public func setSystemPrompt(_ prompt: String) async {
+        await core.setSystemPrompt(prompt: prompt)
+    }
+
+    public func clearSystemPrompt() async {
+        await core.clearSystemPrompt()
+    }
+
+    public func setSampling(_ sampling: EdSamplingConfiguration) async {
+        await core.setSampling(sampling: sampling.ffi)
     }
 
     /// Loads a small tool-capable model chosen for the current Apple device.
@@ -411,14 +504,26 @@ private final class ToolDispatcher: FfiToolExecutor, @unchecked Sendable {
 }
 
 private final class ApprovalAdapter: FfiApprovalHandler, @unchecked Sendable {
-    private let handler: EdApprovalHandler
+    private let handler: EdRiskApprovalHandler
 
-    init(handler: @escaping EdApprovalHandler) {
+    init(handler: @escaping EdRiskApprovalHandler) {
         self.handler = handler
     }
 
     func approve(request: FfiApprovalRequest) async -> FfiApprovalDecision {
-        await handler(request.call.swift).ffi
+        await handler(request.call.swift, request.risk.swift).ffi
+    }
+}
+
+private final class StreamAdapter: FfiStreamListener, @unchecked Sendable {
+    private let continuation: AsyncThrowingStream<String, Error>.Continuation
+
+    init(continuation: AsyncThrowingStream<String, Error>.Continuation) {
+        self.continuation = continuation
+    }
+
+    func onDelta(delta: String) {
+        continuation.yield(delta)
     }
 }
 
@@ -444,6 +549,7 @@ private final class EventHub: FfiEventListener, @unchecked Sendable {
         ))
     }
 
+    func textDelta(delta: String) { emit(.textDelta(delta)) }
     func toolRequested(call: FfiToolCall) { emit(.toolRequested(call.swift)) }
     func approvalRequested(request: FfiApprovalRequest) { emit(.approvalRequested(request.call.swift)) }
     func toolStarted(call: FfiToolCall) { emit(.toolStarted(call.swift)) }
@@ -469,6 +575,21 @@ private extension EdToolDefinition {
             parametersSchema: parametersSchema,
             risk: risk == .readOnly ? .readOnly : .mutating
         )
+    }
+}
+
+private extension FfiToolRisk {
+    var swift: EdToolRisk { self == .readOnly ? .readOnly : .mutating }
+}
+
+private extension EdChatMessage {
+    var ffi: FfiChatMessage {
+        let role: FfiChatRole = switch self.role {
+        case .system: .system
+        case .user: .user
+        case .assistant: .assistant
+        }
+        return FfiChatMessage(role: role, content: content)
     }
 }
 
