@@ -87,6 +87,30 @@ for await event in ed.events() {
 }
 ```
 
+### Plain chat, streaming and saved conversations
+
+For chat without tools, `stream` yields the reply as it is generated. Breaking
+out of the loop or cancelling the task stops generation:
+
+```swift
+for try await delta in ed.stream("Summarise this thread.") {
+    reply += delta
+}
+```
+
+Other calls for apps with their own chat history:
+
+```swift
+await ed.restoreHistory(savedMessages)   // switch to a saved chat (needs a loaded model)
+let draft = try await ed.generate(messages: messages)  // one-shot, history untouched
+await ed.setSystemPrompt("Be brief.")
+await ed.setSampling(EdSamplingConfiguration(temperature: 0.2))
+```
+
+`EdAgent(appID:)` reports usage under your Onde app id. Pass a two-argument
+approval handler (`{ call, risk in ... }`) to learn whether a call is read-only
+or mutating, and watch for `EdEvent.textDelta` while `run` generates.
+
 Cancelling the Swift task also cancels the active Ed turn:
 
 ```swift

@@ -558,7 +558,19 @@ public protocol FfiEdAgentProtocol: AnyObject, Sendable {
     
     func cancel() 
     
+    /**
+     * Stop the `stream_message` in progress. Does nothing when none is.
+     */
+    func cancelStream() 
+    
     func clearHistory() async  -> UInt64
+    
+    func clearSystemPrompt() async 
+    
+    /**
+     * One-shot generation over `messages`. Leaves the conversation untouched.
+     */
+    func generate(messages: [FfiChatMessage], sampling: FfiSamplingConfig?) async throws  -> String
     
     func history() async  -> [FfiChatMessage]
     
@@ -578,9 +590,25 @@ public protocol FfiEdAgentProtocol: AnyObject, Sendable {
     
     func removeAllTools() async 
     
+    /**
+     * Replace the conversation with `messages`. Needs a loaded model.
+     */
+    func restoreHistory(messages: [FfiChatMessage]) async 
+    
     func run(message: String) async throws  -> FfiAgentReply
     
     func send(message: String) async throws  -> FfiReply
+    
+    func setSampling(sampling: FfiSamplingConfig) async 
+    
+    func setSystemPrompt(prompt: String) async 
+    
+    /**
+     * Stream the reply to `message` into `listener`, for plain chat without tools.
+     * Returns when the reply is complete, on error, or after `cancel_stream`.
+     * The turn so far stays in history either way.
+     */
+    func streamMessage(message: String, listener: FfiStreamListener) async throws 
     
     func unload() async  -> String?
     
@@ -649,10 +677,35 @@ public convenience init(executor: FfiToolExecutor, approvals: FfiApprovalHandler
     }
 
     
+    /**
+     * Like `new`, with an Onde app id so the engine reports usage under it.
+     */
+public static func newWithAppId(executor: FfiToolExecutor, approvals: FfiApprovalHandler, events: FfiEventListener, config: FfiAgentConfig?, appId: String?) -> FfiEdAgent  {
+    return try!  FfiConverterTypeFfiEdAgent_lift(try! rustCall() {
+    uniffi_ed_agent_ffi_fn_constructor_ffiedagent_new_with_app_id(
+        FfiConverterCallbackInterfaceFfiToolExecutor_lower(executor),
+        FfiConverterCallbackInterfaceFfiApprovalHandler_lower(approvals),
+        FfiConverterCallbackInterfaceFfiEventListener_lower(events),
+        FfiConverterOptionTypeFfiAgentConfig.lower(config),
+        FfiConverterOptionString.lower(appId),$0
+    )
+})
+}
+    
 
     
 open func cancel()  {try! rustCall() {
     uniffi_ed_agent_ffi_fn_method_ffiedagent_cancel(
+            self.uniffiCloneHandle(),$0
+    )
+}
+}
+    
+    /**
+     * Stop the `stream_message` in progress. Does nothing when none is.
+     */
+open func cancelStream()  {try! rustCall() {
+    uniffi_ed_agent_ffi_fn_method_ffiedagent_cancel_stream(
             self.uniffiCloneHandle(),$0
     )
 }
@@ -673,6 +726,44 @@ open func clearHistory()async  -> UInt64  {
             liftFunc: FfiConverterUInt64.lift,
             errorHandler: nil
             
+        )
+}
+    
+open func clearSystemPrompt()async   {
+    return
+        try!  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_ed_agent_ffi_fn_method_ffiedagent_clear_system_prompt(
+                    self.uniffiCloneHandle()
+                    
+                )
+            },
+            pollFunc: ffi_ed_agent_ffi_rust_future_poll_void,
+            completeFunc: ffi_ed_agent_ffi_rust_future_complete_void,
+            freeFunc: ffi_ed_agent_ffi_rust_future_free_void,
+            liftFunc: { $0 },
+            errorHandler: nil
+            
+        )
+}
+    
+    /**
+     * One-shot generation over `messages`. Leaves the conversation untouched.
+     */
+open func generate(messages: [FfiChatMessage], sampling: FfiSamplingConfig?)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_ed_agent_ffi_fn_method_ffiedagent_generate(
+                    self.uniffiCloneHandle(),
+                    FfiConverterSequenceTypeFfiChatMessage.lower(messages),FfiConverterOptionTypeFfiSamplingConfig.lower(sampling)
+                )
+            },
+            pollFunc: ffi_ed_agent_ffi_rust_future_poll_rust_buffer,
+            completeFunc: ffi_ed_agent_ffi_rust_future_complete_rust_buffer,
+            freeFunc: ffi_ed_agent_ffi_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
     
@@ -833,6 +924,27 @@ open func removeAllTools()async   {
         )
 }
     
+    /**
+     * Replace the conversation with `messages`. Needs a loaded model.
+     */
+open func restoreHistory(messages: [FfiChatMessage])async   {
+    return
+        try!  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_ed_agent_ffi_fn_method_ffiedagent_restore_history(
+                    self.uniffiCloneHandle(),
+                    FfiConverterSequenceTypeFfiChatMessage.lower(messages)
+                )
+            },
+            pollFunc: ffi_ed_agent_ffi_rust_future_poll_void,
+            completeFunc: ffi_ed_agent_ffi_rust_future_complete_void,
+            freeFunc: ffi_ed_agent_ffi_rust_future_free_void,
+            liftFunc: { $0 },
+            errorHandler: nil
+            
+        )
+}
+    
 open func run(message: String)async throws  -> FfiAgentReply  {
     return
         try  await uniffiRustCallAsync(
@@ -863,6 +975,64 @@ open func send(message: String)async throws  -> FfiReply  {
             completeFunc: ffi_ed_agent_ffi_rust_future_complete_rust_buffer,
             freeFunc: ffi_ed_agent_ffi_rust_future_free_rust_buffer,
             liftFunc: FfiConverterTypeFfiReply_lift,
+            errorHandler: FfiConverterTypeFfiEdError_lift
+        )
+}
+    
+open func setSampling(sampling: FfiSamplingConfig)async   {
+    return
+        try!  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_ed_agent_ffi_fn_method_ffiedagent_set_sampling(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeFfiSamplingConfig_lower(sampling)
+                )
+            },
+            pollFunc: ffi_ed_agent_ffi_rust_future_poll_void,
+            completeFunc: ffi_ed_agent_ffi_rust_future_complete_void,
+            freeFunc: ffi_ed_agent_ffi_rust_future_free_void,
+            liftFunc: { $0 },
+            errorHandler: nil
+            
+        )
+}
+    
+open func setSystemPrompt(prompt: String)async   {
+    return
+        try!  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_ed_agent_ffi_fn_method_ffiedagent_set_system_prompt(
+                    self.uniffiCloneHandle(),
+                    FfiConverterString.lower(prompt)
+                )
+            },
+            pollFunc: ffi_ed_agent_ffi_rust_future_poll_void,
+            completeFunc: ffi_ed_agent_ffi_rust_future_complete_void,
+            freeFunc: ffi_ed_agent_ffi_rust_future_free_void,
+            liftFunc: { $0 },
+            errorHandler: nil
+            
+        )
+}
+    
+    /**
+     * Stream the reply to `message` into `listener`, for plain chat without tools.
+     * Returns when the reply is complete, on error, or after `cancel_stream`.
+     * The turn so far stays in history either way.
+     */
+open func streamMessage(message: String, listener: FfiStreamListener)async throws   {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_ed_agent_ffi_fn_method_ffiedagent_stream_message(
+                    self.uniffiCloneHandle(),
+                    FfiConverterString.lower(message),FfiConverterCallbackInterfaceFfiStreamListener_lower(listener)
+                )
+            },
+            pollFunc: ffi_ed_agent_ffi_rust_future_poll_void,
+            completeFunc: ffi_ed_agent_ffi_rust_future_complete_void,
+            freeFunc: ffi_ed_agent_ffi_rust_future_free_void,
+            liftFunc: { $0 },
             errorHandler: FfiConverterTypeFfiEdError_lift
         )
 }
@@ -2332,6 +2502,11 @@ public protocol FfiEventListener: AnyObject, Sendable {
     
     func statusChanged(update: FfiStatusUpdate) 
     
+    /**
+     * A piece of the reply as it is generated, during `run`.
+     */
+    func textDelta(delta: String) 
+    
     func toolRequested(call: FfiToolCall) 
     
     func approvalRequested(request: FfiApprovalRequest) 
@@ -2383,6 +2558,30 @@ fileprivate struct UniffiCallbackInterfaceFfiEventListener {
                 }
                 return uniffiObj.statusChanged(
                      update: try FfiConverterTypeFfiStatusUpdate_lift(update)
+                )
+            }
+
+            
+            let writeReturn = { () }
+            uniffiTraitInterfaceCall(
+                callStatus: uniffiCallStatus,
+                makeCall: makeCall,
+                writeReturn: writeReturn
+            )
+        },
+        textDelta: { (
+            uniffiHandle: UInt64,
+            delta: RustBuffer,
+            uniffiOutReturn: UnsafeMutableRawPointer,
+            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
+        ) in
+            let makeCall = {
+                () throws -> () in
+                guard let uniffiObj = try? FfiConverterCallbackInterfaceFfiEventListener.handleMap.get(handle: uniffiHandle) else {
+                    throw UniffiInternalError.unexpectedStaleHandle
+                }
+                return uniffiObj.textDelta(
+                     delta: try FfiConverterString.lift(delta)
                 )
             }
 
@@ -2607,6 +2806,133 @@ public func FfiConverterCallbackInterfaceFfiEventListener_lift(_ handle: UInt64)
 #endif
 public func FfiConverterCallbackInterfaceFfiEventListener_lower(_ v: FfiEventListener) -> UInt64 {
     return FfiConverterCallbackInterfaceFfiEventListener.lower(v)
+}
+
+
+
+
+/**
+ * Receives a streamed reply from `stream_message`.
+ */
+public protocol FfiStreamListener: AnyObject, Sendable {
+    
+    func onDelta(delta: String) 
+    
+}
+
+
+// Put the implementation in a struct so we don't pollute the top-level namespace
+fileprivate struct UniffiCallbackInterfaceFfiStreamListener {
+
+    // Create the VTable using a series of closures.
+    // Swift automatically converts these into C callback functions.
+    //
+    // This creates 1-element array, since this seems to be the only way to construct a const
+    // pointer that we can pass to the Rust code.
+    static let vtable: [UniffiVTableCallbackInterfaceFfiStreamListener] = [UniffiVTableCallbackInterfaceFfiStreamListener(
+        uniffiFree: { (uniffiHandle: UInt64) -> () in
+            do {
+                try FfiConverterCallbackInterfaceFfiStreamListener.handleMap.remove(handle: uniffiHandle)
+            } catch {
+                print("Uniffi callback interface FfiStreamListener: handle missing in uniffiFree")
+            }
+        },
+        uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
+            do {
+                return try FfiConverterCallbackInterfaceFfiStreamListener.handleMap.clone(handle: uniffiHandle)
+            } catch {
+                fatalError("Uniffi callback interface FfiStreamListener: handle missing in uniffiClone")
+            }
+        },
+        onDelta: { (
+            uniffiHandle: UInt64,
+            delta: RustBuffer,
+            uniffiOutReturn: UnsafeMutableRawPointer,
+            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
+        ) in
+            let makeCall = {
+                () throws -> () in
+                guard let uniffiObj = try? FfiConverterCallbackInterfaceFfiStreamListener.handleMap.get(handle: uniffiHandle) else {
+                    throw UniffiInternalError.unexpectedStaleHandle
+                }
+                return uniffiObj.onDelta(
+                     delta: try FfiConverterString.lift(delta)
+                )
+            }
+
+            
+            let writeReturn = { () }
+            uniffiTraitInterfaceCall(
+                callStatus: uniffiCallStatus,
+                makeCall: makeCall,
+                writeReturn: writeReturn
+            )
+        }
+    )]
+}
+
+private func uniffiCallbackInitFfiStreamListener() {
+    uniffi_ed_agent_ffi_fn_init_callback_vtable_ffistreamlistener(UniffiCallbackInterfaceFfiStreamListener.vtable)
+}
+
+// FfiConverter protocol for callback interfaces
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+fileprivate struct FfiConverterCallbackInterfaceFfiStreamListener {
+    fileprivate static let handleMap = UniffiHandleMap<FfiStreamListener>()
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+extension FfiConverterCallbackInterfaceFfiStreamListener : FfiConverter {
+    typealias SwiftType = FfiStreamListener
+    typealias FfiType = UInt64
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public static func lift(_ handle: UInt64) throws -> SwiftType {
+        try handleMap.get(handle: handle)
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public static func lower(_ v: SwiftType) -> UInt64 {
+        return handleMap.insert(obj: v)
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(v))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterCallbackInterfaceFfiStreamListener_lift(_ handle: UInt64) throws -> FfiStreamListener {
+    return try FfiConverterCallbackInterfaceFfiStreamListener.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterCallbackInterfaceFfiStreamListener_lower(_ v: FfiStreamListener) -> UInt64 {
+    return FfiConverterCallbackInterfaceFfiStreamListener.lower(v)
 }
 
 
@@ -3121,7 +3447,16 @@ private let initializationResult: InitializationResult = {
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_cancel() != 42085) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_cancel_stream() != 63923) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_clear_history() != 19615) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_clear_system_prompt() != 50345) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_generate() != 6127) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_history() != 36014) {
@@ -3151,10 +3486,22 @@ private let initializationResult: InitializationResult = {
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_remove_all_tools() != 36535) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_restore_history() != 25771) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_run() != 39233) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_send() != 839) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_set_sampling() != 44594) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_set_system_prompt() != 31838) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_stream_message() != 6788) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffiedagent_unload() != 29612) {
@@ -3166,28 +3513,37 @@ private let initializationResult: InitializationResult = {
     if (uniffi_ed_agent_ffi_checksum_constructor_ffiedagent_new() != 19584) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_ed_agent_ffi_checksum_constructor_ffiedagent_new_with_app_id() != 58709) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_ed_agent_ffi_checksum_method_ffiapprovalhandler_approve() != 9982) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_status_changed() != 50680) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_requested() != 58928) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_text_delta() != 35660) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_approval_requested() != 13081) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_requested() != 9203) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_started() != 23754) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_approval_requested() != 14469) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_finished() != 4350) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_started() != 36088) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_agent_replied() != 33842) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_tool_finished() != 51284) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_warning() != 43170) {
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_agent_replied() != 55514) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffieventlistener_warning() != 17877) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_ed_agent_ffi_checksum_method_ffistreamlistener_on_delta() != 13726) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ed_agent_ffi_checksum_method_ffitoolexecutor_execute() != 36465) {
@@ -3196,6 +3552,7 @@ private let initializationResult: InitializationResult = {
 
     uniffiCallbackInitFfiApprovalHandler()
     uniffiCallbackInitFfiEventListener()
+    uniffiCallbackInitFfiStreamListener()
     uniffiCallbackInitFfiToolExecutor()
     return InitializationResult.ok
 }()
