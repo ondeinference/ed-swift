@@ -8,9 +8,9 @@ let localFrameworkAbsolutePath = packageRoot.appendingPathComponent(localFramewo
 
 // Updated automatically by onde-ed's release-sdk-swift workflow.
 let releaseFrameworkURL =
-    "https://github.com/ondeinference/ed/releases/download/v1.3.1/EdFramework.xcframework.zip"
+    "https://github.com/ondeinference/ed/releases/download/v1.3.2/EdFramework.xcframework.zip"
 let releaseFrameworkChecksum =
-    "6ee929473729dab746a99aa2f0fa563fbecd75633e108989aac3772b9f3ca0f5"
+    "b824ad50f7a06dccb0b7f71e521d86ce1acbdbff8fb4b5370abdcddf1165ed9c"
 
 let edFrameworkTarget: Target
 if FileManager.default.fileExists(atPath: localFrameworkAbsolutePath) {
