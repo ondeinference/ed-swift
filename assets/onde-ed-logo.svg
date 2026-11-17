@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="80" height="80" rx="12" fill="#1B4332" />
+  <g fill="#F5F3EC" fill-rule="evenodd">
+    <!-- O: ring, outer r=15 touches all four edges -->
+    <path transform="translate(8 8)"
+          d="M15 0a15 15 0 1 1 0 30a15 15 0 1 1 0-30Z M15 7a8 8 0 1 0 0 16a8 8 0 1 0 0-16Z" />
+    <!-- N: two stems plus a diagonal, drawn as one outline -->
+    <path transform="translate(42 8)"
+          d="M0 0H7L23 19.6V0H30V30H23L7 10.4V30H0Z" />
+    <!-- D: stem plus a half-round bowl whose arc reaches x=30 -->
+    <path transform="translate(8 42)"
+          d="M0 0H15A15 15 0 0 1 15 30H0Z M7 7V23H15A8 8 0 0 0 15 7Z" />
+    <!-- E: full-width top, middle and bottom bars -->
+    <path transform="translate(42 42)"
+          d="M0 0H30V7H7V11.5H30V18.5H7V23H30V30H0Z" />
+  </g>
+  <rect x="29" y="32" width="22" height="16" fill="#000" />
+  <path fill="#F5F3EC" d="M33.37 36.49 34.47 36.62C34.5 37.65 34.5 38.69 34.5 39.71V40.3C34.5 41.34 34.5 42.38 34.47 43.38L33.37 43.51V44H39.56L39.64 41.87H38.96L38.7 43.4H35.65C35.63 42.41 35.63 41.4 35.63 40.2H37.4L37.55 41.33H38.1V38.51H37.55L37.39 39.64H35.63C35.63 38.66 35.63 37.61 35.65 36.6H38.46L38.72 38.11H39.4L39.32 36H33.37ZM41.66 41.19C41.66 39.57 42.42 38.85 43.31 38.85C43.7 38.85 44.11 39 44.66 39.47V42.78C44.21 43.28 43.84 43.47 43.32 43.47C42.36 43.47 41.66 42.76 41.66 41.19ZM44.78 44.12 46.63 44V43.57L45.66 43.43V36.97L45.71 35.26L45.54 35.16L43.68 35.7V36.13L44.69 36.25V38.95C44.19 38.36 43.69 38.17 43.13 38.17C41.67 38.17 40.59 39.39 40.59 41.22C40.59 42.96 41.56 44.16 43.02 44.16C43.76 44.16 44.27 43.84 44.69 43.3Z" />
+</svg>

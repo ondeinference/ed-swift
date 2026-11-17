@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/onde-ed-logo.svg" alt="Ed" width="96">
+</p>
+
 # Ed for Swift
 
 Ed is a private, on-device agent for Swift apps. Onde runs the language model;
